@@ -40,7 +40,7 @@ module Gruff
 
     # Space around text elements. Mostly used for vertical spacing
     LEGEND_MARGIN = TITLE_MARGIN = 20.0
-    LABEL_MARGIN = 10.0
+    LABEL_MARGIN = 20.0
     DEFAULT_MARGIN = 20.0
 
     DEFAULT_TARGET_WIDTH = 800
@@ -1013,7 +1013,7 @@ module Gruff
     # Draws column labels below graph, centered over x_offset
     #--
     # TODO Allow WestGravity as an option
-    def draw_label(x_offset, index)
+    def draw_label(x_offset, index, orientation='horizontal')
       return if @hide_line_markers
 
       if !@labels[index].nil? && @labels_seen[index].nil?
@@ -1045,16 +1045,32 @@ module Gruff
         end
 
         if x_offset >= @graph_left && x_offset <= @graph_right
-          @d.fill = @font_color
-          @d.font = @font if @font
-          @d.stroke('transparent')
-          @d.font_weight = NormalWeight
-          @d.pointsize = scale_fontsize(@marker_font_size)
-          @d.gravity = NorthGravity
-          @d = @d.annotate_scaled(@base_image,
-                                  1.0, 1.0,
-                                  x_offset, y_offset,
-                                  label_text, @scale)
+        
+          if orientation=='vertical'
+            @d.fill = @font_color
+            @d.font = @font if @font
+            @d.rotation = 90.0
+            @d.stroke('transparent')
+            @d.font_weight = NormalWeight
+            @d.pointsize = scale_fontsize(@marker_font_size)
+            @d.gravity = CenterGravity
+            @d = @d.annotate_scaled(@base_image,
+                                    1.0, 1.0,
+                                    x_offset, y_offset,
+                                    label_text, @scale)
+            @d.rotation = -90.0
+          else
+            @d.fill = @font_color
+            @d.font = @font if @font
+            @d.stroke('transparent')
+            @d.font_weight = NormalWeight
+            @d.pointsize = scale_fontsize(@marker_font_size)
+            @d.gravity = NorthGravity
+            @d = @d.annotate_scaled(@base_image,
+                                    1.0, 1.0,
+                                    x_offset, y_offset,
+                                    label_text, @scale)
+          end
         end
         @labels_seen[index] = 1
         debug { @d.line 0.0, y_offset, @raw_columns, y_offset }
